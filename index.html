@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Question Game</title>
+</head>
+
+<body>
+
+  <h1>Word Guess Game</h1>
+
+  <p id="NumWins"></p>
+  <p id="CurCategory"></p>
+  <p id="CurPhrase"></p>
+  <p id="GuessCount"></p>
+  <p id="GuessedLetters"></p>
+
+  <script>
+      
+    // VARIABLES
+    // ==========================================================================
+
+    // The array of phrases for the Word Guess Game.
+    var PhraseArray = [
+    { phrase: "THEORY OF A DEADMAN", category: "Band", guess: "theory of a deadman" },
+    { phrase: "OCTOPUS", category: "Sea Creature", guess: "octopus"  },
+    { phrase: "COMPUTER SCREEN", category: "Object", guess: "computer screen" },
+    { phrase: "CAR WASH CLOTH", category: "Before-and-After", guess:"car wash cloth" },
+    { phrase: "ET PHONE HOME", category: "Movie Quote", guess: "et phone home" },
+    { phrase: "HALLOWEEN", category: "Holiday", guess: "halloween" },
+    { phrase: "MIKE AND THE MECHANICS", category: "Band", guess: "mike and the mechanics" },
+    { phrase: "TAZMANIAN DEVIL", category: "Animal", guess: "tazmanian devil" },
+    { phrase: "KITCHEN TABLE", category: "Object", guess: "kitchen table" },
+    { phrase: "LAMP SHADE TREE", category: "Before-and-After", guess: "lamp shade tree" },
+    { phrase: "YOU HAD ME AT HELLO", category: "Movie Quote", guess: "you had me at hello" },
+    { phrase: "SUMMER SOLSTICE", category: "Holiday", guess: "summer solstice" }
+    ];
+   
+    var WinScore = 0;       // Variable to hold current number of wins
+    var PhraseIndex = 0;    // Variable to hold the index of the current Word Guess.
+    var LetterIndex = 0;    // Variable of the letter index as it goes through the phrase string
+    var CurrentPhrase = ""; // Variable (string) to hold current phrase 
+    var CurrentGuess = "";  // Variable (string) to hold the current phrase guess
+    var GuessCount = 0;     // Current Guess Count
+    var MaxGuessCount = 8;  // Maximum number of guesses per phrase 
+    var GuessedLettersList = ""; // String of guessed letters 
+
+    // FUNCTIONS
+    // ==============================================================================
+
+    // Function to render the next phrase.
+    function GetNextPhrase() {
+      // If there are still more phrases, render the next one.
+      if (PhraseIndex < PhraseArray.length) {
+        document.querySelector("#CurCategory").innerHTML = "Category: " + PhraseArray[PhraseIndex].category;
+        document.querySelector("#CurPhrase").innerHTML = PhraseArray[PhraseIndex].guess;
+        GuessCount = 0;
+        GuessedLettersList = "";
+        document.querySelector("#GuessedLetters").innerHTML = GuessedLettersList;
+        return  PhraseArray[PhraseIndex].guess;
+      }
+      // If there are no more phrases, render the end game screen.
+      else {
+        alert ("Error Condition - beyond PhraseArray");
+        return;
+      }
+    }
+
+    // Function to updates the score...
+    function DisplayScore() {
+      document.querySelector("#NumWins").innerHTML = "Number of Wins: " + WinScore;
+    }
+
+    // Function to updates the current guess count...
+    function DisplayGuessCount() {
+      document.querySelector("#GuessCount").innerHTML = "Guess Count: " + GuessCount;
+    }
+
+    // Function to updates the current guess count...
+    function DisplayCurrentGuess() {
+      document.querySelector("#CurPhrase").innerHTML = CurrentPhrase;
+    }
+
+    // Function to updates the current guess count...
+    function DisplayGuessedLetterList() {
+      document.querySelector("#GuessedLetters").innerHTML = "Guessed Letters: " + GuessedLettersList;
+    }
+
+    // Funtion to check if the input letter has been guessed yet.  It returns true if the
+    // letter has already been guessed. If the letter has not been guessed, the letter is 
+    // added to the guessed letter list and the guess count is incremented
+    function CheckLetterGuessed(userInput) {
+        for (var i=0; i < GuessedLettersList.length; i++) {
+            if (userInput === GuessedLettersList.charAt(i)) {
+                // letter has been guessed
+                return (true);
+            }
+        }  
+        // Add the letter to the guessed letter list
+        GuessedLettersList = GuessedLettersList + userInput;
+        return (false);
+    }
+
+    // Function to check if the input letter is in the current phrase.  The entire phrase
+    // must be checked in case there is more than one of that particular letter
+    function LetterInPhrase(userInput) {
+        var IsFound = false;
+        for (var i=0; i < CurrentPhrase.length; i++) {
+            if (userInput === CurrentPhrase.charAt(i)) {
+                // letter has been found - update the CurrentGuess with the letter
+                //???
+                IsFound = true;
+            }
+        }  
+        return (IsFound);
+    }
+    // Function for debugging - sends all values to console.log 
+    function DebugLog (LocationTag) {
+        console.log ("*************************************")
+        console.log ("Program location " + LocationTag);
+        console.log ("Phrase Array length     " + PhraseArray.length);
+        console.log ("Current Phrase (string) " + CurrentPhrase);
+        console.log ("Current Phrase in array " + PhraseArray[PhraseIndex].phrase);
+        console.log ("Current Guess (string)  " + CurrentGuess);
+        console.log ("Win Score (number)      " + WinScore);
+        console.log ("Guess Count (number)    " + GuessCount);
+        console.log ("Letter Index (number)   " + LetterIndex);
+        console.log ("Phrase Index (number)   " + PhraseIndex);
+        console.log ("GuessedLetterList (str) " + GuessedLettersList);
+        
+    }
+
+    // MAIN PROCESS
+    // ==============================================================================
+
+    // Call functions to start the game.
+    CurrentPhrase = GetNextPhrase();  // get the current phrase
+DebugLog("Main Start");
+    DisplayScore();
+    DisplayGuessCount(); 
+    DisplayGuessedLetterList();
+DebugLog("Game started. Waiting for user input");
+
+    // When the user presses a key, it will run the following function...
+    document.onkeyup = function(event) {
+        // Determine which key was pressed, make it uppercase, and set it to the userInput variable.
+        var userInput = event.key.toUpperCase();
+DebugLog("userInput is: " + userInput);
+
+
+
+        // ??? User input can be any key except a space or a star
+        if (userInput === " " || userInput === "*") {
+            alert ("invalid key");
+        }
+        else {  //  The User Input is valid 
+            DisplayGuessCount();
+            DisplayScore();
+
+            // Check if the userInput key has already been guessed
+            if (CheckLetterGuessed(userInput) === true) {
+               //  basically do nothing. Do not increment the guess count. Perhaps make a sound???
+            }
+            else {  // Check if the userInput key is in the phrase 
+                DisplayGuessedLetterList();
+                GuessCount++;
+                if (LetterInPhrase(userInput)) {
+                    DisplayCurrentGuess();
+                    
+                    // Check if entire phrase has been guessed then the player wins
+                    if (CurrentPhrase === CurrentGuess)  {
+                                
+                        // Increment the PhraseIndex variable and get the next phrase.
+                        PhraseIndex++;
+                        CurrentPhrase = GetNextPhrase();
+
+                    
+                    }
+               
+                }
+                
+            }
+            
+        }
+
+        // Only run this code if "t" or "f" were pressed.
+        if (userInput === "t" || userInput === "f") {
+
+            // If they guess the correct answer, increase and update score, alert them they got it right.
+            if (userInput === questions[questionIndex].a) {
+                alert("Correct!");
+                WinScore++;
+                DisplayScore();
+            }
+            // If wrong, alert them they are wrong.
+            else {
+                alert("Wrong!");
+            }
+
+
+        }
+
+        // If there are no more phrases to guess, stop the function.
+        if (PhraseIndex === PhraseArray.length) {
+console.log("Index " + PhraseIndex + "Phrase Length: " + PhraseArray.length);         
+            document.querySelector("#CurCategory").innerHTML = "Game Over!";
+            document.querySelector("#NumWins").innerHTML = "Final Score: " + WinScore;
+            
+        }
+
+    }  // onkeyup
+
+  </script>
+
+</body>
+
+</html>
