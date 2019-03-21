@@ -3,18 +3,21 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Question Game</title>
+  <title>Phrase Guess Game</title>
 </head>
 
 <body>
 
-  <h1>Word Guess Game</h1>
+  <h2>Phrase Guess Game</h2>
 
+  <!--  set up screen output regions  -->
   <p id="NumWins"></p>
   <p id="CurCategory"></p>
   <p id="CurPhrase"></p>
   <p id="GuessCount"></p>
   <p id="GuessedLetters"></p>
+  <p id="blankline"></p>
+  <p id="AlertMsg"></p>
 
   <script>
       
@@ -37,14 +40,16 @@
     { phrase: "SUMMER SOLSTICE", category: "Holiday", guess: "summer solstice" }
     ];
    
-    var WinScore = 0;       // Variable to hold current number of wins
-    var PhraseIndex = 0;    // Variable to hold the index of the current Word Guess.
-    var LetterIndex = 0;    // Variable of the letter index as it goes through the phrase string
+    var WinScore = 0;       // Variable (num) to hold current number of wins
+    var PhraseIndex = 0;    // Variable (num) to hold the index of the current Word Guess.
+    var LetterIndex = 0;    // Variable (num) of the letter index as it goes through the phrase string
     var CurrentPhrase = ""; // Variable (string) to hold current phrase 
     var CurrentGuess = "";  // Variable (string) to hold the current phrase guess
-    var GuessCount = 0;     // Current Guess Count
+    var GuessCount = 0;     // Variable (num) Letter Guess Count
     var MaxGuessCount = 8;  // Maximum number of guesses per phrase 
     var GuessedLettersList = ""; // String of guessed letters 
+    var LineTag = "";
+    var Message = "";
 
     // FUNCTIONS
     // ==============================================================================
@@ -57,8 +62,9 @@
         document.querySelector("#CurPhrase").innerHTML = PhraseArray[PhraseIndex].guess;
         GuessCount = 0;
         GuessedLettersList = "";
+        CurrentGuess = PhraseArray[PhraseIndex].guess;
         document.querySelector("#GuessedLetters").innerHTML = GuessedLettersList;
-        return  PhraseArray[PhraseIndex].guess;
+        return  PhraseArray[PhraseIndex].phrase;
       }
       // If there are no more phrases, render the end game screen.
       else {
@@ -67,54 +73,70 @@
       }
     }
 
-    // Function to updates the score...
+    // Function to update the display score.
     function DisplayScore() {
       document.querySelector("#NumWins").innerHTML = "Number of Wins: " + WinScore;
     }
 
-    // Function to updates the current guess count...
+    // Function to update the display current guess count.
     function DisplayGuessCount() {
       document.querySelector("#GuessCount").innerHTML = "Guess Count: " + GuessCount;
     }
 
-    // Function to updates the current guess count...
+    // Function to update the display the current guessed phrase ...
     function DisplayCurrentGuess() {
-      document.querySelector("#CurPhrase").innerHTML = CurrentPhrase;
+      document.querySelector("#CurPhrase").innerHTML = CurrentGuess;
     }
 
-    // Function to updates the current guess count...
+    // Function to update the display the guessed letter list ...
     function DisplayGuessedLetterList() {
       document.querySelector("#GuessedLetters").innerHTML = "Guessed Letters: " + GuessedLettersList;
     }
 
+    // Function to update the display alert.
+    function DisplayAlertMessage(AlertMsg) {
+      document.querySelector("#AlertMsg").innerHTML = AlertMsg;
+    }
+
+    function DisplayLine(LineTag, Message) {
+      document.querySelector(LineTag).innerHTML = Message;
+    }
+
     // Funtion to check if the input letter has been guessed yet.  It returns true if the
     // letter has already been guessed. If the letter has not been guessed, the letter is 
-    // added to the guessed letter list and the guess count is incremented
+    // added to the guessed letter list
     function CheckLetterGuessed(userInput) {
         for (var i=0; i < GuessedLettersList.length; i++) {
             if (userInput === GuessedLettersList.charAt(i)) {
                 // letter has been guessed
                 return (true);
-            }
-        }  
-        // Add the letter to the guessed letter list
-        GuessedLettersList = GuessedLettersList + userInput;
-        return (false);
+            } 
+        }
+       // Add the letter to the guessed letter list
+       GuessedLettersList = GuessedLettersList + userInput;
+       return (false);
     }
 
     // Function to check if the input letter is in the current phrase.  The entire phrase
     // must be checked in case there is more than one of that particular letter
     function LetterInPhrase(userInput) {
         var IsFound = false;
+        var TempStr = "";
         for (var i=0; i < CurrentPhrase.length; i++) {
+console.log ("In func LetterInPhrase Letter " + CurrentPhrase.charAt(i) + " at " + i);
             if (userInput === CurrentPhrase.charAt(i)) {
-                // letter has been found - update the CurrentGuess with the letter
-                //???
+                TempStr += userInput;
                 IsFound = true;
+                console.log ("In func LetterInPhrase Letter " + CurrentPhrase.charAt(i) + "FOUND at " + i);
+            } 
+            else {
+                TempStr += CurrentGuess.charAt(i);
             }
-        }  
+        }        
+        CurrentGuess = TempStr;
         return (IsFound);
     }
+
     // Function for debugging - sends all values to console.log 
     function DebugLog (LocationTag) {
         console.log ("*************************************")
@@ -140,32 +162,32 @@ DebugLog("Main Start");
     DisplayScore();
     DisplayGuessCount(); 
     DisplayGuessedLetterList();
+    DisplayCurrentGuess();
+
+    document.querySelector("#AlertMsg").innerHTML = "Enter your first letter guess to start"; // Clear the alert line
 DebugLog("Game started. Waiting for user input");
 
     // When the user presses a key, it will run the following function...
     document.onkeyup = function(event) {
-        // Determine which key was pressed, make it uppercase, and set it to the userInput variable.
+        DisplayAlertMessage ("");
+        // Get the keypressed and convert it to upper case.  
         var userInput = event.key.toUpperCase();
-DebugLog("userInput is: " + userInput);
+        // Convert the userInput to ASCII to check for validity
+        var asciiVal = userInput.charCodeAt();
+//DebugLog("userInput is: " + userInput);
 
-
-
-        // ??? User input can be any key except a space or a star
-        if (userInput === " " || userInput === "*") {
-            alert ("invalid key");
-        }
-        else {  //  The User Input is valid 
-            DisplayGuessCount();
-            DisplayScore();
+        // User input must be a letter between A and Z (ASCII 65 and 90)
+        if (asciiVal >= 65 && asciiVal <= 90) {
 
             // Check if the userInput key has already been guessed
-            if (CheckLetterGuessed(userInput) === true) {
-               //  basically do nothing. Do not increment the guess count. Perhaps make a sound???
-            }
-            else {  // Check if the userInput key is in the phrase 
+            if (CheckLetterGuessed(userInput) === false) {
+               // Letter has not been guessed
                 DisplayGuessedLetterList();
-                GuessCount++;
-                if (LetterInPhrase(userInput)) {
+                DisplayGuessCount();
+
+                // Check if the userInput key is in the phrase 
+                if (LetterInPhrase(userInput) === true) {
+console.log("Letter in phrase " + userInput);                 
                     DisplayCurrentGuess();
                     
                     // Check if entire phrase has been guessed then the player wins
@@ -174,31 +196,37 @@ DebugLog("userInput is: " + userInput);
                         // Increment the PhraseIndex variable and get the next phrase.
                         PhraseIndex++;
                         CurrentPhrase = GetNextPhrase();
-
-                    
                     }
-               
                 }
+                else {
+                  GuessCount++;
+                }
+DebugLog("userInput is: " + userInput);
                 
+                // Check for max number of Guesses
+                if (GuessCount === MaxGuessCount) {
+                  DisplayGuessedLetterList();
+                  DisplayGuessCount();
+                  DisplayCurrentGuess();
+//DebugLog("In first if GuessCount " + GuessCount);
+                }
+//DebugLog("Before second if GuessCount " + GuessCount);
+                if (GuessCount === MaxGuessCount) {
+                  alert ("You have used all of your guesses.");
+                  PhraseIndex++;
+                  CurrentPhrase = GetNextPhrase();
+                  alert ("Would you like to play again?");
+                }
+//DebugLog("After second if MaxGuessCount " + MaxGuessCount);
+
             }
-            
-        }
-
-        // Only run this code if "t" or "f" were pressed.
-        if (userInput === "t" || userInput === "f") {
-
-            // If they guess the correct answer, increase and update score, alert them they got it right.
-            if (userInput === questions[questionIndex].a) {
-                alert("Correct!");
-                WinScore++;
-                DisplayScore();
+            else {  // userInput key not used previously. 
+               //  basically do nothing. Do not increment the guess count. Perhaps make a sound???
+               DisplayAlertMessage ("You already guessed that letter");
             }
-            // If wrong, alert them they are wrong.
-            else {
-                alert("Wrong!");
-            }
-
-
+        }  // if asciiVal A to Z
+        else {  //  The User Input is invalid 
+          document.querySelector("#AlertMsg").innerHTML = "Invalid Key Pressed";
         }
 
         // If there are no more phrases to guess, stop the function.
@@ -206,8 +234,7 @@ DebugLog("userInput is: " + userInput);
 console.log("Index " + PhraseIndex + "Phrase Length: " + PhraseArray.length);         
             document.querySelector("#CurCategory").innerHTML = "Game Over!";
             document.querySelector("#NumWins").innerHTML = "Final Score: " + WinScore;
-            
-        }
+        }  
 
     }  // onkeyup
 
