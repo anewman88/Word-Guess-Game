@@ -1,0 +1,19 @@
+
+  body {
+    background: #8c70f1;
+    text-align: center;
+  }
+ 
+  #game-header {
+     margin-top: 80px;
+     margin-bottom: 80px;
+     background: transparent;
+  }
+  #game-title {
+    color: rgb(29, 11, 190);
+    text-align: center;
+  }
+
+  #AlertMsg {
+    color: rgb(190, 11, 26);
+  }

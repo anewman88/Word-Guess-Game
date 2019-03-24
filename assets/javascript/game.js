@@ -18,6 +18,7 @@ var PhraseArray = [
 { phrase: "SUMMER SOLSTICE", category: "Holiday" }
 ];
 
+//   Global Variable Declarations   
 var WinScore = 0;         // Variable (num) to hold current number of wins
 var PhraseIndex = 0;      // Variable (num) to hold the index of the current Word Guess.
 var LetterIndex = 0;      // Variable (num) of the letter index as it goes through the phrase string
@@ -31,12 +32,14 @@ var GameOver = false;     // Variable (boolean) Flag if game is over
 var DebugOn = false;      // Variable (boolean) Flag to turn on debug msgs to console.log
 var sorrySound;           // Variable (function) sound if too many guesse
 var tadaSound;            // Variable (function) sound when phrase is guessed correctly
-var oopsSound;            // Variable (funtion) sound if letter already guessed
+var oopsSound;            // Variable (function) sound if letter already guessed
+var plinkSound;           // Variable (function) sound if an invalid key is pressed
 
-sorrySound = new sound("assets/sounds/Sorry.mp3");
-tadaSound = new sound("assets/sounds/TaDa.mp3");
-oopsSound = new sound("assets/sounds/uhoh.mp3");
 
+// FUNCTIONS
+// ==============================================================================
+
+// function to initialize a sound object and connect it to its "src" mp3 file
 function sound(src) {
   this.sound = document.createElement("audio");
   this.sound.src = src;
@@ -51,9 +54,6 @@ function sound(src) {
       this.sound.pause();
   }    
 }
-
-// FUNCTIONS
-// ==============================================================================
 
 // Function to update the display score.
 function DisplayScore() {
@@ -182,6 +182,9 @@ if (DebugOn) console.log ("In func LetterInPhrase Letter " + CurrentPhrase.charA
     return (IsFound);
 }
 
+// function to make sure that only a single character key is input by the user
+// [Shift] [Ctrl] [Esc] etc come in as strings: "SHIFT" "CONTROL" and "ESCAPE" 
+// from event.key
 function GetCleanInput(InputKey) {
    
    // Check that the input key is just one character. Other keys like SHIFT, ESC, CTRL are
@@ -194,6 +197,7 @@ function GetCleanInput(InputKey) {
    }
 }
 
+// function to refresh the screen "all at once"
 function RefreshScreen(){
   DisplayScore();
   DisplayLine("#CurCategory", "Category: " + PhraseArray[PhraseIndex].category);
@@ -203,6 +207,7 @@ function RefreshScreen(){
   DisplayAlertMessage(" ");
 }
 
+// Function that is called when the game is over to update the screen "all-at-once"
 function DisplayGameOver () {
   DisplayLine("#NumWins", "Final Score: " + WinScore + " of " + PhraseArray.length);
   DisplayLine("#CurCategory", " ");
@@ -212,7 +217,7 @@ function DisplayGameOver () {
   DisplayLine("#AlertMsg", "Thanks for playing!!");
 }
 
-// Function for debugging - sends all values to console.log 
+// Function for debugging - sends a variable "dump" to console.log 
 function DebugLog (LocationTag) {
     console.log ("*************************************")
     console.log ("Program location " + LocationTag);
@@ -230,12 +235,18 @@ function DebugLog (LocationTag) {
 // MAIN PROCESS
 // ==============================================================================
 
-// Call functions to start the game.
+// Initialize the sounds used in the game 
+sorrySound = new sound("assets/sounds/Sorry.mp3");
+tadaSound = new sound("assets/sounds/TaDa.mp3");
+oopsSound = new sound("assets/sounds/uhoh.mp3");
+plinkSound = new sound("assets/sounds/Plink.mp3");
+
+// Initialize the screen to start the game.
 CurrentPhrase = GetFirstPhrase();  // get the first phrase in the array
 RefreshScreen();
 DisplayAlertMessage ("Press a key to guess your first letter");
 
-// When the user presses a key, it will run the following function...
+// When the user presses a key, it will run the following function
 document.onkeyup = function(event) {
     DisplayAlertMessage ("");  // clear the alert message line
 
@@ -243,8 +254,7 @@ document.onkeyup = function(event) {
     var KeyPressed = event.key;
     var userInput = GetCleanInput (KeyPressed);
 
-    // Convert the userInput to ASCII to check for validity
-    var asciiVal = userInput.charCodeAt();
+//  var asciiVal = userInput.charCodeAt();
 
     // check if it is a Play Again query and disgard the input key
     if (PlayAgain === true) {
@@ -310,6 +320,7 @@ if (DebugOn) DebugLog("userInput is: " + userInput);
     }  // if asciiVal A to Z
     else {  //  The User Input is invalid 
       DisplayAlertMessage ("Invalid key pressed: " + KeyPressed);
+      plinkSound.play();
     }
 if (DebugOn) console.log("end of function onkeyup");
 }  // onkeyup
